@@ -1,16 +1,16 @@
-require("dotenv").config();
-const { Todo, Category, TodoCategories } = require("../models");
+require('dotenv').config();
+const { Todo, Category, TodoCategories } = require('../models');
 
 class TodoController {
   static async findIncompleteTodos(req, res, next) {
     try {
       const { id } = req.userLogged;
       const data = await Todo.findAll({
-        where: { user_id: id, status: "incomplete" },
+        where: { user_id: id, status: 'incomplete' },
         include: [
           {
             model: Category,
-            as: "TodoCategory",
+            as: 'TodoCategory',
           },
         ],
       });
@@ -24,11 +24,11 @@ class TodoController {
     try {
       const { id } = req.userLogged;
       const data = await Todo.findAll({
-        where: { user_id: id, status: "complete" },
+        where: { user_id: id, status: 'complete' },
         include: [
           {
             model: Category,
-            as: "TodoCategory",
+            as: 'TodoCategory',
           },
         ],
       });
@@ -42,15 +42,34 @@ class TodoController {
     try {
       const { id } = req.userLogged;
       const data = await Todo.findAll({
-        where: { user_id: id, status: "incomplete", priority: "important" },
+        where: { user_id: id, status: 'incomplete', priority: 'important' },
         include: [
           {
             model: Category,
-            as: "TodoCategory",
+            as: 'TodoCategory',
           },
         ],
       });
       res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async findTodo(req, res, next) {
+    try {
+      const { id } = req.userLogged;
+      const { todoId } = req.params;
+
+      const data = await Todo.findOne({
+        where: { id: todoId, user_id: id },
+      });
+
+      if (data) {
+        res.status(200).json(data);
+      } else {
+        throw { name: 'ErrorNotFound' };
+      }
     } catch (error) {
       next(error);
     }
@@ -68,9 +87,7 @@ class TodoController {
         status,
         due_date,
       });
-      res
-        .status(201)
-        .json({ ...data.dataValues, message: "Successfully add todo!" });
+      res.status(201).json({ ...data.dataValues, message: 'Successfully add todo!' });
     } catch (error) {
       next(error);
     }
@@ -102,9 +119,9 @@ class TodoController {
             },
           }
         );
-        res.status(200).json({ message: "Successfully update todo!" });
+        res.status(200).json({ message: 'Successfully update todo!' });
       } else {
-        throw { name: "ErrorNotFound" };
+        throw { name: 'ErrorNotFound' };
       }
     } catch (error) {
       next(error);
@@ -127,9 +144,9 @@ class TodoController {
             user_id: id,
           },
         });
-        res.status(200).json({ message: "Successfully delete todo!" });
+        res.status(200).json({ message: 'Successfully delete todo!' });
       } else {
-        throw { name: "ErrorNotFound" };
+        throw { name: 'ErrorNotFound' };
       }
     } catch (error) {
       next(error);
@@ -149,15 +166,13 @@ class TodoController {
       });
 
       if (findCategory) {
-        throw { name: "AlreadyExist" };
+        throw { name: 'AlreadyExist' };
       } else {
         const data = await TodoCategories.create({
           todo_id: todoId,
           category_id,
         });
-        res
-          .status(201)
-          .json({ ...data.dataValues, message: "Successfully add category!" });
+        res.status(201).json({ ...data.dataValues, message: 'Successfully add category!' });
       }
     } catch (error) {
       next(error);
@@ -182,9 +197,9 @@ class TodoController {
             category_id: categoryId,
           },
         });
-        res.status(200).json({ message: "Successfully remove category!" });
+        res.status(200).json({ message: 'Successfully remove category!' });
       } else {
-        throw { name: "ErrorNotFound" };
+        throw { name: 'ErrorNotFound' };
       }
     } catch (error) {
       next(error);
